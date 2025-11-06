@@ -1,16 +1,46 @@
 import React, { useState, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
-import { onAuthStateChanged } from 'firebase/auth';
-import { auth } from '../firebase/config';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { collection, query, where, getDocs } from 'firebase/firestore';
+import { auth, db } from '../firebase/config';
 
 const ProtectedRoute = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
-      setLoading(false);
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        // Check if user is admin
+        const adminQuery = query(
+          collection(db, 'admins'),
+          where('email', '==', user.email)
+        );
+        const adminSnapshot = await getDocs(adminQuery);
+        if (adminSnapshot.empty) {
+          // Also check if there are any admins at all (first admin scenario)
+          const allAdminsQuery = query(collection(db, 'admins'));
+          const allAdminsSnapshot = await getDocs(allAdminsQuery);
+          if (allAdminsSnapshot.empty) {
+            // No admins, add this user as first admin
+            const { addDoc } = await import('firebase/firestore');
+            await addDoc(collection(db, 'admins'), { email: user.email, createdAt: new Date() });
+            setUser(user);
+            setLoading(false);
+          } else {
+            // User is not admin, sign out
+            await signOut(auth);
+            setUser(null);
+            setLoading(false);
+          }
+        } else {
+          setUser(user);
+          setLoading(false);
+        }
+      } else {
+        setUser(null);
+        setLoading(false);
+      }
     });
 
     return () => unsubscribe();

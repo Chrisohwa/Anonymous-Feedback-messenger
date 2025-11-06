@@ -1,49 +1,49 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../firebase/config';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from "react";
+import { motion } from "framer-motion";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../firebase/config";
+import { useNavigate } from "react-router-dom";
 
 const AdminLogin = () => {
   const [formData, setFormData] = useState({
-    email: '',
-    password: ''
+    email: "",
+    password: "",
   });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Validation
     if (!formData.email.trim() || !formData.password.trim()) {
-      setError('Please fill in all fields');
+      setError("Please fill in all fields");
       return;
     }
 
     setLoading(true);
-    setError('');
+    setError("");
 
     try {
       await signInWithEmailAndPassword(auth, formData.email, formData.password);
-      navigate('/admin');
+      navigate("/admin");
     } catch (err) {
-      console.error('Login error:', err);
-      
-      if (err.code === 'auth/user-not-found') {
-        setError('User not found. Please check your email.');
-      } else if (err.code === 'auth/wrong-password') {
-        setError('Incorrect password. Please try again.');
+      console.error("Login error:", err);
+
+      if (err.code === "auth/user-not-found") {
+        setError("User not found. Please check your email.");
+      } else if (err.code === "auth/wrong-password") {
+        setError("Incorrect password. Please try again.");
       } else {
-        setError('Login failed. Please try again.');
+        setError("Login failed. Please try again.");
       }
     } finally {
       setLoading(false);
@@ -66,8 +66,16 @@ const AdminLogin = () => {
               transition={{ duration: 2, repeat: Infinity }}
               className="w-16 h-16 bg-primary rounded-full flex items-center justify-center"
             >
-              <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
+              <svg
+                className="w-10 h-10 text-white"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
+                  clipRule="evenodd"
+                />
               </svg>
             </motion.div>
           </div>
@@ -87,7 +95,10 @@ const AdminLogin = () => {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Email Address
               </label>
               <input
@@ -103,7 +114,10 @@ const AdminLogin = () => {
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Password
               </label>
               <input
@@ -118,34 +132,25 @@ const AdminLogin = () => {
               />
             </div>
 
-            <motion.button
+            <button
               type="submit"
+              className="w-full py-3 border-2 border-gray-200 text-gray-700 hover:text-white font-semibold rounded-lg bg-primary hover:bg-blue-800 transition duration-200"
               disabled={loading}
-              whileHover={!loading ? { scale: 1.02 } : {}}
-              whileTap={!loading ? { scale: 0.98 } : {}}
-              className={`w-full py-3 px-4 rounded-lg text-white font-medium transition duration-200 ${
-                loading
-                  ? 'bg-gray-400 cursor-not-allowed'
-                  : 'bg-primary hover:bg-blue-800'
-              }`}
             >
-              {loading ? (
-                <span className="flex items-center justify-center">
-                  <svg className="animate-spin h-5 w-5 mr-3" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                  </svg>
-                  Signing in...
-                </span>
-              ) : (
-                'Sign In'
-              )}
-            </motion.button>
+              Sign In
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate("/")}
+              className="w-full py-3 border-2 border-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition duration-200"
+            >
+              Cancel
+            </button>
           </form>
 
           <div className="mt-8 text-center">
             <p className="text-sm text-gray-600">
-              Back to{' '}
+              Back to{" "}
               <a href="/" className="text-primary hover:underline font-medium">
                 feedback form
               </a>
